@@ -9,13 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StringCalculatorAPI.Controllers
 {
+   
     [Route("api/[controller]")]
     [ApiController]
     public class StringCalculatorController : ControllerBase
     {
         private const string SEPARATOR = ",";
-        private static int CalledCount = 0;
-
+        private static int CalledCount = 0;       
+        public event EventHandler AddOccured;
+        
         // GET: api/StringCalculator
         [HttpGet]
         public int GetCalledCount()
@@ -28,7 +30,9 @@ namespace StringCalculatorAPI.Controllers
         public string Add(QueryTestRequest testRequest)
         {
             string number = testRequest.Number;
-            CalledCount = CalledCount + 1;
+            
+            OnAddOccured(EventArgs.Empty);
+            
             if (!String.IsNullOrEmpty(number.Trim()))
             {
                 string numbersWithoutDelimiter = Regex.Replace(number, @"[^\d{0}-]", SEPARATOR);
@@ -74,6 +78,12 @@ namespace StringCalculatorAPI.Controllers
             }
 
             return Convert.ToString(returnValue);
+        }
+
+        protected virtual void OnAddOccured(EventArgs e)
+        {
+            CalledCount = CalledCount + 1;
+            AddOccured?.Invoke(this, e);
         }
     }
 
